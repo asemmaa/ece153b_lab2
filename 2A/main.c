@@ -10,10 +10,10 @@
  
 void PWM_Init() {
 	// Enable GPIO Port E Clock
-	RCC->AHB2ENR |= 1<<4;
+	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOEEN;
 	
 	// Enable TIM1 Clock
-	RCC->APB2ENR |= 1<<11;
+	RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
 	
 	// Configure PE8
 	GPIOE->MODER &= ~GPIO_MODER_MODE8;
