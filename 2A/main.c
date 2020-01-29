@@ -5,7 +5,7 @@
  * Section: 7:30pm - 9:50pm
  * Lab: 2A
  */
-
+#include <stdio.h>
 #include "stm32l476xx.h"
  
 void PWM_Init() {
@@ -25,19 +25,20 @@ void PWM_Init() {
 	GPIOE->PUPDR &= ~GPIO_PUPDR_PUPD8;
 	
 	// Configure PWM Output for TIM1 CH 1N
-	AFR[0] &= ~GPIO_AFRL_AFSEL1;
-	AFR[0] |= GPIO_AFRL_AFSEL1_0;
+	AFR[1] &= ~GPIO_AFRH_AFSEL8;
+	AFR[1] |= GPIO_AFRH_AFSEL8_0;
 
 	//a: Set direction s.t. timer counts up
 	TIM1_CR1 &= ~TIM_CR1_DIR;
 
 
-	//b: Set the prescaler value (TO-DO)
+	//b: Set the  prescaler value 
 
+	TIM1->PSC=3;
 
-	//c: Set the auto-reload value (TO-DO)
+	//c: Set the auto-reload value 
 
-
+	TIM1->ARR=40000;
 
 	//d: Configure channel 1 to be in output compare mode
 	//d(i): Clear output compare mode bits for channel 1
@@ -46,7 +47,6 @@ void PWM_Init() {
 	//d(ii): Set the output compare mode bits to PWM mode 1 (0110)
 	TIM1_CCMR1 |= TIM_CCMR1_OC1M_1;
 	TIM1_CCMR1 |= TIM_CCMR1_OC1M_2;
-	
 	//d(iii): Enable the output preload for channel 1
 	TIM1_CCMR1 |= TIM_CCMR1_OC1PE;
 
@@ -57,7 +57,7 @@ void PWM_Init() {
 
 
 
-	//f: Enable the output for channel 1N (TO-DO)
+	//f: Enable the output for channel 1N 
 	TIM1_CCER |= TIM_CCER_CC1E;
 
 
@@ -66,28 +66,50 @@ void PWM_Init() {
 
 
 
-	//h: Set capture/compare value. (TO-DO)
+	//h: Set capture/compare value. 
 
-
+	TIM1-CCR1 = 20000;
 
 	//i: Enable the counter
 	TIM1_CR1 |= TIM_CR1_CEN;
 
-
-
-
 }
+
+/*void GreenLED_Init(void){
+
+	// Initialize Green LED
+	GPIOE->MODER &= ~GPIO_MODER_MODE8;
+	GPIOE->MODER |= GPIO_MODER_MODE8_0;
+	
+	//Configure PB2 output type as Push-Pull
+	GPIOE->OTYPER &= ~GPIO_OTYPER_OT8;
+	
+	//Configure PB2 output type as No Pull-Up, No Pull-Down
+	
+	GPIOE->PUPDR &= ~GPIO_PUPDR_PUPD8;
+}
+void Green_LED_On(void) {
+	GPIOE->ODR |= GPIO_ODR_OD8;
+} */
+
+
  
 int main() {
 	// Initialization - We will use the default 4 MHz clock
 	PWM_Init();
+	GreenLED_Init();
 	
 	// Periodic Dimming
 	int i;
 	while(1) {
 		// TODO (changing duty cycle, etc.)
 		
-		for(i=0; i<1000; ++i); // Some Delay
+		for(i=0; i<20000; 2*i); // Some Delay
+		{
+			
+		TIM1->CCR1=i;  //when we keep lowering ccr the green LED should become dimmer
+		}
+
 	}
 	
 	return 0;
