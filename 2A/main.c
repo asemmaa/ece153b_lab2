@@ -25,92 +25,73 @@ void PWM_Init() {
 	GPIOE->PUPDR &= ~GPIO_PUPDR_PUPD8;
 	
 	// Configure PWM Output for TIM1 CH 1N
-	AFR[1] &= ~GPIO_AFRH_AFSEL8;
-	AFR[1] |= GPIO_AFRH_AFSEL8_0;
+	GPIOE->AFR[1] &= ~GPIO_AFRH_AFSEL8;
+	GPIOE->AFR[1] |= GPIO_AFRH_AFSEL8_0;
 
 	//a: Set direction s.t. timer counts up
-	TIM1_CR1 &= ~TIM_CR1_DIR;
+	TIM1->CR1 &= ~TIM_CR1_DIR;
 
 
 	//b: Set the  prescaler value 
 
-	TIM1->PSC=3;
+	TIM1->PSC=19;
 
 	//c: Set the auto-reload value 
 
-	TIM1->ARR=40000;
+	TIM1->ARR=5000;
 
 	//d: Configure channel 1 to be in output compare mode
 	//d(i): Clear output compare mode bits for channel 1
-	TIM1_CCMR1 &= ~TIM_CCMR1_OC1M;
+	TIM1->CCMR1 &= ~TIM_CCMR1_OC1M;
 	
 	//d(ii): Set the output compare mode bits to PWM mode 1 (0110)
-	TIM1_CCMR1 |= TIM_CCMR1_OC1M_1;
-	TIM1_CCMR1 |= TIM_CCMR1_OC1M_2;
+	TIM1->CCMR1 |= TIM_CCMR1_OC1M_1;
+	TIM1->CCMR1 |= TIM_CCMR1_OC1M_2;
 	//d(iii): Enable the output preload for channel 1
-	TIM1_CCMR1 |= TIM_CCMR1_OC1PE;
+	TIM1->CCMR1 |= TIM_CCMR1_OC1PE;
 
 
 
 	//e: Set the output polarity for channel 1N to active high
-	TIM1_CCER &= ~TIM_CCER_CC1P;
+	TIM1->CCER &= ~TIM_CCER_CC1P;
 
 
 
 	//f: Enable the output for channel 1N 
-	TIM1_CCER |= TIM_CCER_CC1E;
+	TIM1->CCER |= TIM_CCER_CC1NE;
 
 
 	//g: Enable the main output
-	TIM1_BDTR |= TIM_BDTR_MOE;
+	TIM1->BDTR |= TIM_BDTR_MOE;
 
 
 
 	//h: Set capture/compare value. 
 
-	TIM1-CCR1 = 20000;
+	TIM1->CCR1 = 2500;
 
 	//i: Enable the counter
-	TIM1_CR1 |= TIM_CR1_CEN;
+	TIM1->CR1 |= TIM_CR1_CEN;
 
 }
-
-/*void GreenLED_Init(void){
-
-	// Initialize Green LED
-	GPIOE->MODER &= ~GPIO_MODER_MODE8;
-	GPIOE->MODER |= GPIO_MODER_MODE8_0;
-	
-	//Configure PB2 output type as Push-Pull
-	GPIOE->OTYPER &= ~GPIO_OTYPER_OT8;
-	
-	//Configure PB2 output type as No Pull-Up, No Pull-Down
-	
-	GPIOE->PUPDR &= ~GPIO_PUPDR_PUPD8;
-}
-void Green_LED_On(void) {
-	GPIOE->ODR |= GPIO_ODR_OD8;
-} */
 
 
  
 int main() {
 	// Initialization - We will use the default 4 MHz clock
 	PWM_Init();
-	GreenLED_Init();
 	
-	// Periodic Dimming
-	int i;
-	while(1) {
-		// TODO (changing duty cycle, etc.)
-		
-		for(i=0; i<20000; 2*i); // Some Delay
-		{
-			
-		TIM1->CCR1=i;  //when we keep lowering ccr the green LED should become dimmer
-		}
+	int goingUp = 1;
 
+	while(1) {
+		for (int j = 0; j < 1000; j++){
+			}
+		
+		if (TIM1->CCR1 >= (TIM1->ARR)) goingUp = 0;
+		if (TIM1->CCR1 <= 0) goingUp = 1;
+			
+		TIM1->CCR1 += (goingUp)? 2: -2;
+		
 	}
 	
-	return 0;
 }
