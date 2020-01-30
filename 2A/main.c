@@ -25,20 +25,20 @@ void PWM_Init() {
 	GPIOE->PUPDR &= ~GPIO_PUPDR_PUPD8;
 	
 	// Configure PWM Output for TIM1 CH 1N
-	AFR[1] &= ~GPIO_AFRH_AFSEL8;
-	AFR[1] |= GPIO_AFRH_AFSEL8_0;
+	GPIOE->AFR[1] &= ~GPIO_AFRH_AFSEL8;
+	GPIOE->AFR[1] |= GPIO_AFRH_AFSEL8_0;
 
 	//a: Set direction s.t. timer counts up
 	TIM1_CR1 &= ~TIM_CR1_DIR;
 
 
 	//b: Set the  prescaler value 
-
 	TIM1->PSC=3;
 
-	//c: Set the auto-reload value 
 
+	//c: Set the auto-reload value 
 	TIM1->ARR=40000;
+
 
 	//d: Configure channel 1 to be in output compare mode
 	//d(i): Clear output compare mode bits for channel 1
@@ -67,7 +67,6 @@ void PWM_Init() {
 
 
 	//h: Set capture/compare value. 
-
 	TIM1-CCR1 = 20000;
 
 	//i: Enable the counter
@@ -75,7 +74,7 @@ void PWM_Init() {
 
 }
 
-/*void GreenLED_Init(void){
+void GreenLED_Init(void){
 
 	// Initialize Green LED
 	GPIOE->MODER &= ~GPIO_MODER_MODE8;
@@ -90,9 +89,7 @@ void PWM_Init() {
 }
 void Green_LED_On(void) {
 	GPIOE->ODR |= GPIO_ODR_OD8;
-} */
-
-
+}
  
 int main() {
 	// Initialization - We will use the default 4 MHz clock
@@ -106,8 +103,7 @@ int main() {
 		
 		for(i=0; i<20000; 2*i); // Some Delay
 		{
-			
-		TIM1->CCR1=i;  //when we keep lowering ccr the green LED should become dimmer
+			TIM1->CCR1=i;  //when we keep lowering ccr the green LED should become dimmer
 		}
 
 	}
