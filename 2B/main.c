@@ -69,7 +69,7 @@ void RTC_Alarm_Enable(void) {
 
 
 	//g. Enable write protection for the RTC registers.
-
+	RTC_Enable_Write_Protection();
 
 
 }
