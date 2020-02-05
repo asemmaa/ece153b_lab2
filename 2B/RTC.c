@@ -65,11 +65,15 @@ void RTC_Init(void) {
 	
 	// Configure the Date 
 	/* Note: __LL_RTC_CONVERT_BIN2BCD helper macro can be used if user wants to */
-	/*       provide directly the decimal value:                                */
-	RTC_Set_Calendar_Date(RTC_WEEKDAY_WEDNESDAY, 0x01, RTC_MONTH_JANUARY, 0x20); /* STUB (Wednesday January 1, 2020): Fill in current date */
+	/*       provide directly the decimal value: 
+	*/
+	
+	//April 13, 2013, 6:52:21 PM
+	
+	RTC_Set_Calendar_Date(RTC_WEEKDAY_WEDNESDAY, 0x13, RTC_MONTH_APRIL, 0x13); /* STUB (Wednesday January 1, 2020): Fill in current date */
 	
 	// Configure the Time 
-	RTC_Set_Time(RTC_TR_PM, 0x07, 0x00, 0x00); /* STUB (7:00:00 PM): Fill in current time */
+	RTC_Set_Time(RTC_TR_PM, 0x06, 0x52, 0x21); /* STUB (7:00:00 PM): Fill in current time */
   
 	// Exit of initialization mode 
 	RTC->ISR &= ~RTC_ISR_INIT;
@@ -102,10 +106,78 @@ void RTC_Init(void) {
 
 void RTC_Set_Calendar_Date(uint32_t WeekDay, uint32_t Day, uint32_t Month, uint32_t Year) {
 	// TODO -- Write the date values in the correct place within the RTC Date Register
+
+	uint32_t tempTime;
+	
+	
+	//weekday
+	tempTime |= WeekDay << RTC_POSITION_DR_WDU;
+
+	//Day
+	uint32_t dayt= (Day & 0xF0) >> 4;
+	uint32_t dayu= (Day & 0x0F);
+
+	tempTime |= dayt << RTC_POSITION_DR_DT;
+	tempTime |= dayu << RTC_POSITION_DR_DU;
+
+	//Month
+
+	uint32_t montht = (Month & 0xF0) >> 4;
+	uint32_t monthu = (Month & 0x0F);
+	
+	tempTime |= montht << RTC_POSITION_DR_MT;
+	tempTime |= monthu << RTC_POSITION_DR_MU;
+
+	//Year
+
+	uint32_t yeart = (Year & 0xF0) >> 4;
+	uint32_t yearu = (Year & 0x0F);
+
+	tempTime |= yeart << RTC_POSITION_DR_YT;
+	tempTime |= yearu << RTC_POSITION_DR_YU;
+	
+	RTC->DR = tempTime;
+
+
+
+
+
 }
 
 void RTC_Set_Time(uint32_t Format12_24, uint32_t Hour, uint32_t Minute, uint32_t Second) {
 	// TODO -- Write the time values in the correct place within the RTC Time Register
+
+	// Format12_24
+
+	RTC->TR |= Format12_24;
+
+	// Hour
+	uint32_t temTime;
+	
+	uint32_t hourt = (Hour & 0xF0) >> 4;
+	uint32_t houru = (Hour & 0x0F);
+
+	temTime |= hourt << RTC_POSITION_TR_HT;
+	temTime |= houru << RTC_POSITION_TR_HU;
+
+	//Minute 
+
+	uint32_t minutet = (Minute & 0xF0) >> 4;
+	uint32_t minuteu = (Minute & 0x0F);
+
+	temTime |= minutet << RTC_POSITION_TR_MT;
+	temTime |= minuteu << RTC_POSITION_TR_MU;
+
+	//Second
+
+	uint32_t secondt = (Second & 0xF0) >> 4;
+	uint32_t secondu = (Second & 0x0F);
+
+	temTime |= secondt << RTC_POSITION_TR_ST;
+	temTime|= secondu << RTC_POSITION_TR_SU;
+	
+	RTC->TR = temTime;
+	
 }
 
 void RTC_Clock_Init(void) {
@@ -146,39 +218,41 @@ void RTC_Clock_Init(void) {
 }
 
 void RTC_Disable_Write_Protection(void) {
-	// TODO
+	RTC->WPR |= 0xCA;
+	RTC->WPR |= 0x53;
 }
 	
 void RTC_Enable_Write_Protection(void) {
-	// TODO
+	RTC->WPR |=0x00;
 }
 
 uint32_t RTC_TIME_GetHour(void) {
-	// TODO
+
+	return (((RTC->TR & RTC_TR_HT) >> RTC_POSITION_TR_HT)<<4) | ((RTC->TR & RTC_TR_HU) >> RTC_POSITION_TR_HU);
 }
 
 uint32_t RTC_TIME_GetMinute(void) {
-	// TODO
+	return (((RTC->TR & RTC_TR_MNT) >> RTC_POSITION_TR_MT)<<4) | ((RTC->TR & RTC_TR_MNU) >> RTC_POSITION_TR_MU);
 }
 
 uint32_t RTC_TIME_GetSecond(void) {
-	// TODO
+	return (((RTC->TR & RTC_TR_ST) >> RTC_POSITION_TR_ST)<<4) | ((RTC->TR & RTC_TR_SU) >> RTC_POSITION_TR_SU);
 }
 
 uint32_t RTC_DATE_GetMonth(void) {
-	// TODO
+	return (((RTC->DR & RTC_DR_MT) >> RTC_POSITION_DR_MT)<<4) | ((RTC->DR & RTC_DR_MU) >> RTC_POSITION_DR_MU);
 }
 
 uint32_t RTC_DATE_GetDay(void) {
-	// TODO
+	return (((RTC->DR & RTC_DR_DT) >> RTC_POSITION_DR_DT)<<4) | ((RTC->DR & RTC_DR_DU) >> RTC_POSITION_DR_DU);
 }
 
 uint32_t RTC_DATE_GetYear(void) {
-	// TODO
+	return (((RTC->DR & RTC_DR_YT) >> RTC_POSITION_DR_YT)<<4) | ((RTC->DR & RTC_DR_YU) >> RTC_POSITION_DR_YU);
 }
 
 uint32_t RTC_DATE_GetWeekDay(void) {
-	// TODO
+	return ((RTC->DR & RTC_DR_WDU) >> RTC_POSITION_DR_WDU);
 }
 
 void Get_RTC_Calendar(char * strTime, char * strDate) {
